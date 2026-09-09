@@ -8,4 +8,4 @@ Static site for Brian Olek, oil painter. No build step.
   from `~/Desktop/Painting/Warbuck PNG`. Add a work by adding a row to works.json with its `src`, then rerun.
 
 Run locally: `python3 -m http.server 3324` in this folder, open http://localhost:3324.
-Deploy: any static host (GitHub Pages, Netlify, Cloudflare Pages). Domain: warbuck.com.
+Deploy: GitHub Pages from repo Brianolek/brianolek, branch main. `git push` publishes. Domain: brianolek.com (CNAME file).
