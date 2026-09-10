@@ -13,7 +13,6 @@
   /* ---------- hero ---------- */
   if (hero) {
     Smear($("#smear"), `img/full/${hero.id}.webp`, { strength: 0.55 });
-    $("#heroCaption").textContent = `${hero.title} · ${hero.medium}`;
   }
   /* letters of the name smear up when the pointer is near them */
   const name = $("[data-smear]");
@@ -41,32 +40,19 @@
 
   /* ---------- gallery ---------- */
   const wrap = $("#works");
-  const roman = i => ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX","XXI","XXII"][i] || String(i + 1);
-  const seriesName = { figures: "Figures", overdrive: "Overdrive", other: "" };
-  function titleHTML(w) {
-    const m = w.title.match(/^(.*?)\s*\((.*)\)$/);
-    return m ? `${m[1]} <em>(${m[2]})</em>` : w.title;
-  }
-  function detail(w) { return [w.medium, w.size, w.year].filter(Boolean).join(" · "); }
   works.forEach((w, i) => {
     const el = document.createElement("article");
     el.className = "piece" + (w.w / w.h > 1.25 ? " is-wide" : "");
     el.dataset.series = w.series; el.dataset.index = i;
     el.innerHTML = `
       <figure class="piece-fig">
-        <button type="button" aria-label="Open ${w.title}">
+        <button type="button" aria-label="Open painting ${i + 1}">
           <div class="ratio" style="--ar:${w.w} / ${w.h}; background:${w.color}">
             <img class="blurred" src="img/thumb/${w.id}.webp" alt="" aria-hidden="true" loading="lazy">
-            <img class="sharp" src="img/full/${w.id}.webp" alt="${w.title}, ${w.medium}" loading="lazy" decoding="async">
+            <img class="sharp" src="img/full/${w.id}.webp" alt="Painting ${i + 1}" loading="lazy" decoding="async">
           </div>
         </button>
-      </figure>
-      <div class="piece-cap">
-        <span class="idx">${String(i + 1).padStart(2, "0")}${seriesName[w.series] ? " · " + seriesName[w.series] : ""}</span>
-        <span class="t">${titleHTML(w)}</span>
-        <span>${detail(w)}</span>
-        ${w.note ? `<span class="n">${w.note}</span>` : ""}
-      </div>`;
+      </figure>`;
     el.querySelector("button").addEventListener("click", () => openViewer(i));
     wrap.appendChild(el);
   });
@@ -96,21 +82,7 @@
   }, { threshold: [0.15, 0.55], rootMargin: "0px 0px -8% 0px" });
   pieces.forEach(p => io.observe(p));
 
-  /* filters */
-  function applyFilter(series) {
-    let n = 0;
-    for (const p of pieces) {
-      const on = series === "all" || p.dataset.series === series;
-      p.classList.toggle("is-hidden", !on); if (on) n++;
-    }
-    cAll.textContent = String(n).padStart(2, "0");
-    cNow.textContent = "01";
-  }
-  $$(".filters .chip").forEach(b => b.addEventListener("click", () => {
-    $$(".filters .chip").forEach(x => x.classList.toggle("is-on", x === b));
-    const run = () => applyFilter(b.dataset.series);
-    document.startViewTransition && !reduced ? document.startViewTransition(run) : run();
-  }));
+  cAll.textContent = String(pieces.length).padStart(2, "0");
   $$(".views .chip").forEach(b => b.addEventListener("click", () => {
     $$(".views .chip").forEach(x => x.classList.toggle("is-on", x === b));
     const run = () => {
@@ -126,7 +98,7 @@
   try { const v = localStorage.getItem("bo-view"); if (v === "grid") $('.views [data-view="grid"]').click(); } catch (e) {}
 
   /* ---------- viewer ---------- */
-  const viewer = $("#viewer"), vImg = $("#viewerImg"), vCap = $("#viewerCap");
+  const viewer = $("#viewer"), vImg = $("#viewerImg");
   let current = -1;
   function visibleIndices() { return pieces.filter(p => !p.classList.contains("is-hidden")).map(p => +p.dataset.index); }
   function show(i) {
@@ -134,8 +106,7 @@
     vImg.style.opacity = 0; vImg.style.filter = "url(#vblur)"; vImg.style.transform = "translateY(20px)";
     const next = new Image();
     next.onload = () => {
-      vImg.src = next.src; vImg.alt = `${w.title}, ${w.medium}`;
-      vCap.innerHTML = `<span class="t">${titleHTML(w)}</span>${detail(w)}`;
+      vImg.src = next.src; vImg.alt = `Painting ${i + 1}`;
       requestAnimationFrame(() => { vImg.style.opacity = ""; vImg.style.filter = ""; vImg.style.transform = ""; });
     };
     next.src = `img/full/${w.id}.webp`;
@@ -170,7 +141,7 @@
 
   /* ---------- scroll: progress bar, nav highlight, hero parallax ---------- */
   const bar = $(".progress"), heroCopy = $(".hero-copy"), smear = $("#smear");
-  const sections = ["work", "about", "contact"].map(id => document.getElementById(id));
+  const sections = ["work", "contact"].map(id => document.getElementById(id));
   const navLinks = $$(".nav a");
   let ticking = false;
   function onScroll() {
