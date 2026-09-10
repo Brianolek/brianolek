@@ -8,7 +8,10 @@
   /* ---------- data ---------- */
   let works = [];
   try { works = await (await fetch("works.json")).json(); } catch (e) { console.error("works.json failed", e); }
-  const hero = works.find(w => w.hero) || works[0];
+  /* a different order and a different first painting on every visit */
+  for (let i = works.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [works[i], works[j]] = [works[j], works[i]]; }
+  const portraits = works.filter(w => w.h > w.w);
+  const hero = portraits.length ? portraits[Math.floor(Math.random() * portraits.length)] : works[0];
 
   /* ---------- hero ---------- */
   if (hero) {
