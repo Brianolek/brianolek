@@ -17,6 +17,17 @@
   if (hero) {
     Smear($("#smear"), `img/full/${hero.id}.webp`, { strength: 0.55 });
   }
+  /* the line under the name: a fresh draw every visit, never the same as last time */
+  (function () {
+    const el = $(".lede"), pool = window.LINES || [];
+    if (!pool.length) return;
+    let last = -1; try { last = +localStorage.getItem("bo-line"); } catch (e) {}
+    let i = Math.floor(Math.random() * pool.length);
+    if (pool.length > 1 && i === last) i = (i + 1 + Math.floor(Math.random() * (pool.length - 1))) % pool.length;
+    el.textContent = pool[i];
+    try { localStorage.setItem("bo-line", String(i)); } catch (e) {}
+  })();
+
   /* letters of the name smear up when the pointer is near them */
   const name = $("[data-smear]");
   const letters = [];
