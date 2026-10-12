@@ -1,7 +1,7 @@
 :root {
   --bg: #f4f1ea; --card: #fffdf8; --ink: #1c1b18; --ink-2: #6b675e; --line: #e2ddd2;
   --accent: #c8322b; --ok: #2f7d4f;
-  --threads: #1c1b18; --instagram: #b5386b; --tiktok: #0f8f8a; --pinterest: #c8322b; --email: #7a5cc4; --shop: #a87a1f; --youtube: #c8322b;
+  --threads: #1c1b18; --instagram: #b5386b; --tiktok: #0f8f8a; --pinterest: #c8322b; --substack: #d9641e; --facebook: #2b5fb3; --shop: #6f6a5f; --youtube: #c8322b;
   --sans: system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
 }
@@ -50,7 +50,7 @@ main { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
 .chip { display: inline-block; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; color: #fff; margin-bottom: 4px; }
 .chip.threads { background: var(--threads); color: var(--bg); }
 .chip.instagram { background: var(--instagram); } .chip.tiktok { background: var(--tiktok); } .chip.pinterest { background: var(--pinterest); }
-.chip.email { background: var(--email); } .chip.shop { background: var(--shop); } .chip.youtube { background: var(--youtube); }
+.chip.substack { background: var(--substack); } .chip.facebook { background: var(--facebook); } .chip.shop { background: var(--shop); } .chip.youtube { background: var(--youtube); }
 .card .how { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: .9rem; white-space: pre-wrap; }
 .card.open .how { display: block; }
 .card .main { cursor: pointer; min-width: 0; }
@@ -96,3 +96,8 @@ main { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
 .pf ul { margin: 4px 0 0 18px; padding: 0; font-size: .88rem; }
 .pf .k { color: var(--ink-2); }
 .steps li { margin-bottom: 8px; }
+
+.cov { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.cov span { font-size: .7rem; border: 1px solid var(--line); border-radius: 999px; padding: 1px 7px; color: var(--ink-2); }
+.cov span.due { border-color: var(--accent); color: var(--accent); }
+.cov span.on { background: var(--ok); border-color: var(--ok); color: #fff; }

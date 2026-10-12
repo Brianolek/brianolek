@@ -3,6 +3,8 @@
 
 export const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 export const STAGES = ['idea', 'in-progress', 'finished', 'listed', 'sold', 'archived'];
+// The posts every painting should get over its life. Used for the per-work coverage row in the Pipeline tab.
+export const CAMPAIGN = ['reference', 'wip', 'process', 'reveal', 'story', 'forsale', 'talking', 'prints', 'collector'];
 
 export function parseYmd(s) {
   const [y, m, d] = s.split('-').map(Number);
@@ -107,34 +109,38 @@ export function buildDay(date, data) {
     usedToday.add(w.id);
     return w;
   };
-  slots.forEach((slot, si) => {
-    if (!enabled(slot.platform)) return;
-    if (slot.every && Math.floor(di / 7) % slot.every !== (slot.phase || 0)) return;
+  const active = slots.filter((slot) => enabled(slot.platform) && !(slot.every && Math.floor(di / 7) % slot.every !== (slot.phase || 0)));
 
-    const isPostSlot = !!slot.pool;
-    if (isPostSlot) {
-      // A milestone on this platform today takes this slot instead of adding to it.
-      const m = events.find((e) => e.kind === 'milestone' && e.platform === slot.platform && !e.consumed);
-      if (m) {
-        m.consumed = true;
-        if (!m.time) {
-          m.time = slot.time;
-          m.label = slot.label || null;
-        }
-        return;
-      }
+  // A milestone on a platform takes over one of that platform's regular post slots instead of adding to it.
+  // It prefers a slot whose pool already includes its type (a reveal goes to the Feed slot, not the Story slot).
+  const taken = new Set();
+  for (const m of events.filter((e) => e.kind === 'milestone')) {
+    const cands = active.filter((sl) => sl.pool && sl.platform === m.platform && !taken.has(sl));
+    const slot = cands.find((sl) => sl.pool.includes(m.type)) || cands[0];
+    if (!slot) continue;
+    taken.add(slot);
+    if (!m.time) {
+      m.time = slot.time;
+      m.label = slot.label || null;
     }
+  }
 
+  const usedTypes = new Set();
+  active.forEach((slot) => {
+    if (taken.has(slot)) return;
+    const si = slots.indexOf(slot);
+    const isPostSlot = !!slot.pool;
     let typeId = slot.type;
     let work = null;
     let needsWork = false;
     if (isPostSlot) {
       const rot = di + si;
       const pool = slot.pool.map((id) => T.get(id)).filter(Boolean);
-      // Prefer the rotation pick if it has an eligible work (or needs none); else the first pool entry that does.
-      const first = pick(pool, rot);
+      // Prefer the rotation pick if it has an eligible work (or needs none) and has not run today; else the first that does.
       const ok = (t) => !t.stages.length || eligibleWorks(t, works).length > 0;
-      const chosen = ok(first) ? first : pool.find(ok) || first;
+      const fresh = pool.filter((t) => ok(t) && !usedTypes.has(t.id));
+      const chosen = fresh.length ? pick(fresh, rot) : pool.find(ok) || pick(pool, rot);
+      usedTypes.add(chosen.id);
       typeId = chosen.id;
       work = chooseWork(eligibleWorks(chosen, works), rot);
       needsWork = chosen.stages.length > 0 && !work;
@@ -144,7 +150,7 @@ export function buildDay(date, data) {
       needsWork = !!(t && t.stages.length && !work);
     }
     const type = T.get(typeId);
-    const kind = type && (type.phase === 'Ops' || typeId === 'engage') ? 'ritual' : 'post';
+    const kind = slot.kind || (type && (type.phase === 'Ops' || typeId === 'engage') ? 'ritual' : 'post');
     events.push({
       id: `${date}:${slot.id}:${slot.platform}`,
       date,
@@ -165,7 +171,6 @@ export function buildDay(date, data) {
   // Any milestone that found no slot gets the platform's first best window.
   for (const e of events) {
     if (e.kind !== 'milestone') continue;
-    delete e.consumed;
     if (!e.time) {
       const p = P.get(e.platform);
       e.time = (p.bestWindows && p.bestWindows[0]) || '12:00';
@@ -237,7 +242,7 @@ export function validateWorks(works) {
     else if (seen.has(w.id)) problems.push(`Duplicate id ${w.id}`);
     seen.add(w.id);
     if (!STAGES.includes(w.stage)) problems.push(`${w.id}: unknown stage "${w.stage}" (use ${STAGES.join(', ')})`);
-    for (const f of ['started', 'finished', 'drop', 'sold']) {
+    for (const f of ['started', 'finished', 'listed', 'drop', 'sold']) {
       if (w[f] && !/^\d{4}-\d{2}-\d{2}$/.test(w[f])) problems.push(`${w.id}: ${f} should be YYYY-MM-DD, got "${w[f]}"`);
     }
   }

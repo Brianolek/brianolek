@@ -12,7 +12,7 @@ data/*.json  ──►  js/engine.js  ──►  index.html (phone app: Today / 
 ```
 
 - **Cadence** (`data/cadence.json`): recurring slots. "Every day 8:00 Threads post, pick from WIP / concept / studio / story." "Mondays 18:00 TikTok process video." "Sunday 17:00 weekly review."
-- **Lifecycle** (`data/lifecycle.json`): dated posts generated per work. Set a `drop` date on a work and the teaser (T-7), story (T-3), reminder (T-1), drop-live (T0) and last-call (T+2) posts appear by themselves. Set `finished` and the reveal, story and prints posts do.
+- **Lifecycle** (`data/lifecycle.json`): dated posts generated per painting. Set `finished` and the reveal (3 platforms), painting video and story posts appear. Set `listed` and the for-sale posts (twice) and prints post do. Set `drop` and the teaser (T-7), story (T-3), reminder (T-1, Substack first), drop-live (T0) and last-call (T+2) posts do. At one painting every 3 days these cycles overlap; that overlap is the content ecosystem.
 - **Pipeline** (`data/works.json`): the works and their stage: `idea → in-progress → finished → listed → sold`. The engine draws the right work for each post type (WIP posts only pull from in-progress work, reveals from finished, collector posts from sold).
 - **Playbook** (`data/post_types.json`, `data/platforms.json`): the how. Purpose, shot list, caption formula, call to action, and format rules per platform. This text shows up in the app and inside every calendar event.
 
@@ -24,6 +24,10 @@ A milestone (drop day, reveal day) takes over the regular slot on that platform,
 2. Today tab: each card is one thing to do, with the time, the platform, the work, and (tap) the how. Check it off when posted.
 3. Sunday 17:00: Pipeline tab. Move works to their real stage, set drop dates. Takes 10 minutes. The whole next week reschedules itself.
 4. Or ignore the app and live from Google Calendar: every slot is an event with a 10-minute reminder and the instructions in the description.
+
+## Per-painting coverage
+
+The Pipeline tab shows a row under each painting: reference, WIP, video, finished, story, for sale, talking, prints, collector. Green means a post of that kind about that painting was checked off. Red means it is due in the painting's current stage. The Sunday review is: look for red.
 
 ## Google Calendar
 

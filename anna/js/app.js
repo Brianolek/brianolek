@@ -1,4 +1,4 @@
-import { buildDay, buildRange, addDays, ymd, summary, instructions, weekLoad, validateWorks, STAGES, DAY_KEYS } from './engine.js';
+import { buildDay, buildRange, addDays, ymd, summary, instructions, weekLoad, validateWorks, STAGES, CAMPAIGN } from './engine.js';
 
 const $ = (s) => document.querySelector(s);
 const LS = {
@@ -76,7 +76,11 @@ $('#agenda').addEventListener('click', (ev) => {
   const card = ev.target.closest('.card'); if (!card) return;
   const id = card.dataset.id;
   if (ev.target.closest('.check')) {
-    if (done[id]) delete done[id]; else done[id] = Date.now();
+    if (done[id]) delete done[id];
+    else {
+      const e = buildDay(state.date, state.data).find((x) => x.id === id);
+      done[id] = { t: Date.now(), work: e && e.work ? e.work.id : null, type: e ? e.type : null };
+    }
     LS.set('anna:done', done);
     renderToday();
   } else if (ev.target.closest('.main')) {
@@ -113,10 +117,24 @@ $('#wnext').onclick = () => { state.weekStart = addDays(state.weekStart, 7); ren
 
 // ---------- Pipeline ----------
 function saveWorks() { LS.set('anna:works', state.data.works); renderAll(); }
+function coverage(w) {
+  const T = new Map(state.data.postTypes.map((t) => [t.id, t]));
+  const hits = new Set(Object.values(done).filter((d) => d && d.work === w.id).map((d) => d.type));
+  return CAMPAIGN.filter((id) => T.has(id)).map((id) => ({ id, name: T.get(id).name, done: hits.has(id), due: T.get(id).stages.includes(w.stage) }));
+}
+function rhythm() {
+  const { paintingEveryDays: every = 3, campaignDays: span = 14 } = state.data.config;
+  const today = ymd(new Date());
+  const since = addDays(today, -span);
+  const running = state.data.works.filter((w) => w.finished && w.finished >= since && w.finished <= today).length;
+  const onEasel = state.data.works.filter((w) => w.stage === 'in-progress').length;
+  const expected = Math.ceil(span / every);
+  return `One painting every ${every} days means about ${expected} paintings in their ${span}-day content cycle at any time. Right now: ${running} finished in the last ${span} days, ${onEasel} on the easel.` + (running < expected ? ' Behind the rhythm: finish or log a painting.' : '');
+}
 function renderPipeline() {
   const works = state.data.works;
   const local = !!LS.get('anna:works', null);
-  $('#pipelineNote').textContent = local ? 'Showing edits saved on this device. The calendar feed still uses the repo version until works.json is updated there.' : '';
+  $('#pipelineNote').textContent = (local ? 'Showing edits saved on this device. The calendar feed still uses the repo version until works.json is updated there. ' : '') + rhythm();
   const sel = $('#addWork select');
   if (!sel.options.length) sel.innerHTML = STAGES.map((s) => `<option ${s === 'in-progress' ? 'selected' : ''}>${s}</option>`).join('');
   const groups = STAGES.map((s) => [s, works.filter((w) => w.stage === s)]).filter(([, l]) => l.length);
@@ -130,9 +148,11 @@ function renderPipeline() {
           <label class="inline"><input type="checkbox" data-f="prints" ${w.prints ? 'checked' : ''}> Prints available</label>
           <label>Started <input type="date" data-f="started" value="${w.started || ''}"></label>
           <label>Finished <input type="date" data-f="finished" value="${w.finished || ''}"></label>
+          <label>Listed <input type="date" data-f="listed" value="${w.listed || ''}"></label>
           <label>Drop date <input type="date" data-f="drop" value="${w.drop || ''}"></label>
           <label>Sold <input type="date" data-f="sold" value="${w.sold || ''}"></label>
         </div>
+        <div class="cov">${coverage(w).map((c) => `<span class="${c.done ? 'on' : c.due ? 'due' : ''}" title="${esc(c.name)}">${c.done ? '✓ ' : ''}${esc(c.name)}</span>`).join('')}</div>
       </div>`).join('')}`).join('') || '<p class="muted">No works yet. Add one above.</p>';
 }
 $('#pipeline').addEventListener('change', (ev) => {
@@ -144,8 +164,10 @@ $('#pipeline').addEventListener('change', (ev) => {
   else delete w[f];
   // Keep stage and dates coherent: a finished date implies at least 'finished', a sold date implies 'sold'.
   if (f === 'finished' && w.finished && ['idea', 'in-progress'].includes(w.stage)) w.stage = 'finished';
+  if (f === 'listed' && w.listed && ['idea', 'in-progress', 'finished'].includes(w.stage)) w.stage = 'listed';
   if (f === 'sold' && w.sold) w.stage = 'sold';
   if (f === 'stage' && w.stage === 'finished' && !w.finished) w.finished = ymd(new Date());
+  if (f === 'stage' && w.stage === 'listed' && !w.listed) w.listed = ymd(new Date());
   if (f === 'stage' && w.stage === 'sold' && !w.sold) w.sold = ymd(new Date());
   saveWorks();
 });
@@ -164,6 +186,7 @@ $('#addWork').addEventListener('submit', (ev) => {
   const w = { id, title, stage };
   if (stage === 'idea' || stage === 'in-progress') w.started = ymd(new Date());
   if (['finished', 'listed', 'sold'].includes(stage)) w.finished = ymd(new Date());
+  if (['listed', 'sold'].includes(stage)) w.listed = ymd(new Date());
   if (stage === 'sold') w.sold = ymd(new Date());
   state.data.works.push(w);
   ev.target.reset();

@@ -3,5 +3,8 @@
   "timezone": "America/New_York",
   "siteUrl": "https://brianolek.com/anna/",
   "calendarHorizonDays": 56,
-  "notes": "Edit timezone to where Anna lives. Everything in cadence.json and lifecycle.json is in this timezone."
+  "paintingEveryDays": 3,
+  "campaignDays": 14,
+  "goals": ["Sell finished paintings", "Sell prints", "Build a fan base that buys"],
+  "notes": "Edit timezone to where Anna lives. paintingEveryDays is the production rhythm: one finished painting every N days. campaignDays is how long each painting's content cycle runs after it is finished."
 }
