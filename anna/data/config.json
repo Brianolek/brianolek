@@ -1,0 +1,7 @@
+{
+  "artist": "Anna Douglas",
+  "timezone": "America/New_York",
+  "siteUrl": "https://brianolek.com/anna/",
+  "calendarHorizonDays": 56,
+  "notes": "Edit timezone to where Anna lives. Everything in cadence.json and lifecycle.json is in this timezone."
+}

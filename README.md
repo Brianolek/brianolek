@@ -9,3 +9,5 @@ Static site for Brian Olek, oil painter. No build step.
 
 Run locally: `python3 -m http.server 3324` in this folder, open http://localhost:3324.
 Deploy: GitHub Pages from repo Brianolek/brianolek, branch main. `git push` publishes. Domain: brianolek.com (CNAME file).
+
+`anna/` is a separate thing: Studio Days, the daily posting planner and calendar feed for Anna Douglas. See `anna/README.md`.

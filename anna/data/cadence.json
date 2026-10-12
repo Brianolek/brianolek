@@ -1,0 +1,41 @@
+{
+  "_about": "Recurring slots. 'pool' is the list of post types the engine chooses from for that slot, rotating by day and skipping types with no eligible work. 'every' + 'phase' make a slot biweekly. Times are in config.timezone.",
+  "daily": [
+    { "id": "am-post",   "time": "08:00", "platform": "threads",   "pool": ["wip", "concept", "studio", "story"] },
+    { "id": "am-engage", "time": "08:15", "platform": "threads",   "type": "engage" },
+    { "id": "ig-story",  "time": "10:00", "platform": "instagram", "pool": ["wip", "studio"], "label": "Story" },
+    { "id": "noon-post", "time": "12:30", "platform": "threads",   "pool": ["reveal", "wip", "story", "collector"] },
+    { "id": "pm-post",   "time": "20:00", "platform": "threads",   "pool": ["studio", "story", "wip", "repost"] },
+    { "id": "pm-engage", "time": "20:15", "platform": "threads",   "type": "engage" }
+  ],
+  "weekly": {
+    "mon": [
+      { "id": "ig-feed",    "time": "11:00", "platform": "instagram", "pool": ["reveal", "wip", "prints"], "label": "Feed" },
+      { "id": "tt-process", "time": "18:00", "platform": "tiktok",    "type": "process" }
+    ],
+    "tue": [
+      { "id": "pins", "time": "16:00", "platform": "pinterest", "type": "pins" }
+    ],
+    "wed": [
+      { "id": "ig-reel",    "time": "11:00", "platform": "instagram", "type": "process", "label": "Reel" },
+      { "id": "tt-process", "time": "18:00", "platform": "tiktok",    "type": "process" }
+    ],
+    "thu": [
+      { "id": "ig-feed",  "time": "11:00", "platform": "instagram", "pool": ["reveal", "story", "collector"], "label": "Feed" },
+      { "id": "photos",   "time": "14:00", "platform": "shop",      "type": "photo-session" },
+      { "id": "listing",  "time": "14:45", "platform": "shop",      "type": "listing" }
+    ],
+    "fri": [
+      { "id": "ig-reel",    "time": "11:00", "platform": "instagram", "type": "process", "label": "Reel" },
+      { "id": "tt-process", "time": "18:00", "platform": "tiktok",    "type": "process" }
+    ],
+    "sat": [
+      { "id": "newsletter", "time": "10:00", "platform": "email", "type": "newsletter", "every": 2, "phase": 0 },
+      { "id": "record",     "time": "13:00", "platform": "tiktok", "type": "process", "label": "Record footage for next week (no posting)", "minutes": 60 }
+    ],
+    "sun": [
+      { "id": "plan",     "time": "17:00", "platform": "threads", "type": "plan" },
+      { "id": "captions", "time": "17:30", "platform": "threads", "type": "batch-captions" }
+    ]
+  }
+}
